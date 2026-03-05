@@ -1,142 +1,196 @@
-(() => {
-  // Durations in seconds
-  const DURATIONS = {
-    focus: 25 * 60,
-    short: 5 * 60,
-    long: 15 * 60
-  };
+:root{
+  --bg: #0b0f1a;
+  --panel: #121a2b;
+  --border: #26324f;
+  --text: #e8eefc;
+  --muted: #b5c2e6;
+  --muted2: #8ea0d1;
+  --btn: #1a2440;
+  --btn2: #16203a;
+  --accent: #7aa8ff;
+  --radius: 14px;
+}
 
-  // Elements
-  const timeDisplay = document.getElementById("timeDisplay");
-  const statusText  = document.getElementById("statusText");
-  const progressBar = document.getElementById("progressBar");
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
 
-  const startBtn = document.getElementById("startBtn");
-  const pauseBtn = document.getElementById("pauseBtn");
-  const resetBtn = document.getElementById("resetBtn");
+.wrap{
+  min-height:100%;
+  display:grid;
+  place-items:center;
+  padding: 18px;
+}
 
-  const modeButtons = Array.from(document.querySelectorAll(".chip[data-mode]"));
+.panel{
+  width: min(720px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
 
-  // State
-  let mode = "focus";
-  let remaining = DURATIONS[mode];
-  let intervalId = null;
-  let isRunning = false;
+.top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
 
-  // Helpers
-  const pad2 = (n) => String(n).padStart(2, "0");
+.title{
+  margin:0;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+}
+.sub{
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
 
-  function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${pad2(m)}:${pad2(s)}`;
-  }
+.meta{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
 
-  function modeLabel(m) {
-    if (m === "focus") return "Focus";
-    if (m === "short") return "Short break";
-    return "Long break";
-  }
+.pill{
+  display:inline-flex;
+  align-items:center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
 
-  function setStatus(text) {
-    statusText.textContent = text;
-  }
+.presets{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 16px;
+}
 
-  function setButtons() {
-    startBtn.textContent = isRunning ? "Running…" : (remaining < DURATIONS[mode] ? "Resume" : "Start");
-    startBtn.disabled = isRunning;
-    pauseBtn.disabled = !isRunning;
-  }
+.tab{
+  background: var(--btn2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 10px;
+  color: var(--text);
+  cursor: pointer;
+  text-align:left;
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+}
+.tab:hover{ background: var(--btn); }
+.tab.is-active{
+  border-color: var(--accent);
+  outline: 2px solid rgba(122,168,255,0.2);
+}
 
-  function setActiveModeUI() {
-    for (const btn of modeButtons) {
-      const btnMode = btn.getAttribute("data-mode");
-      const active = btnMode === mode;
-      btn.classList.toggle("is-active", active);
-      btn.setAttribute("aria-pressed", active ? "true" : "false");
-    }
-  }
+.tiny{
+  color: var(--muted2);
+  font-size: 12px;
+}
 
-  function render() {
-    timeDisplay.textContent = formatTime(remaining);
-    const ratio = Math.max(0, Math.min(1, remaining / DURATIONS[mode]));
-    progressBar.style.width = `${ratio * 100}%`;
-    setButtons();
-  }
+.clock{
+  text-align:center;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(56px, 9vw, 92px);
+  font-weight: 750;
+  letter-spacing: 1px;
+  margin: 6px 0 12px;
+}
 
-  function stopTimer() {
-    if (intervalId) clearInterval(intervalId);
-    intervalId = null;
-    isRunning = false;
-    setButtons();
-  }
+.bar{
+  height: 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow:hidden;
+  background: #0f1630;
+  margin-bottom: 16px;
+}
+.barFill{
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transition: width .25s ease;
+}
 
-  function tick() {
-    remaining -= 1;
-    if (remaining <= 0) {
-      remaining = 0;
-      stopTimer();
-      render();
-      setStatus("Time’s up!");
-      return;
-    }
-    render();
-  }
+.row{
+  display:grid;
+  grid-template-columns: 180px 1fr;
+  gap: 14px;
+  align-items:start;
+}
 
-  function startTimer() {
-    if (isRunning) return;
-    isRunning = true;
-    setButtons();
-    setStatus(`${modeLabel(mode)} running…`);
-    intervalId = setInterval(tick, 1000);
-  }
+.info{
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #10182d;
+}
 
-  function pauseTimer() {
-    if (!isRunning) return;
-    stopTimer();
-    setStatus("Paused");
-    render();
-  }
+.infoLine{
+  display:flex;
+  justify-content:space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(38,50,79,0.6);
+}
+.infoLine:last-child{ border-bottom: none; }
 
-  function resetTimer() {
-    stopTimer();
-    remaining = DURATIONS[mode];
-    setStatus("Ready");
-    render();
-  }
+.label{
+  color: var(--muted2);
+}
 
-  function switchMode(newMode) {
-    if (!DURATIONS[newMode]) return;
-    // Simple + bug-free: pause if running, then switch
-    stopTimer();
-    mode = newMode;
-    remaining = DURATIONS[mode];
-    setActiveModeUI();
-    setStatus("Ready");
-    render();
-  }
+.controls{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
 
-  // Wire up events
-  startBtn.addEventListener("click", startTimer);
-  pauseBtn.addEventListener("click", pauseTimer);
-  resetBtn.addEventListener("click", resetTimer);
+.btn{
+  padding: 12px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--btn2);
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover{ background: var(--btn); }
+.btn:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn.primary{
+  border-color: rgba(122,168,255,0.8);
+}
+.btn.ghost{
+  grid-column: 1 / -1;
+  background: transparent;
+}
 
-  modeButtons.forEach((btn) => {
-    btn.addEventListener("click", () => switchMode(btn.getAttribute("data-mode")));
-  });
+.hint{
+  margin-top: 14px;
+  display:flex;
+  justify-content:space-between;
+  gap: 10px;
+  color: var(--muted2);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
 
-  // Keyboard shortcuts
-  document.addEventListener("keydown", (e) => {
-    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-
-    if (e.code === "Space") {
-      e.preventDefault();
-      isRunning ? pauseTimer() : startTimer();
-    }
-    if (e.key.toLowerCase() === "r") resetTimer();
-  });
-
-  // Init
-  setActiveModeUI();
-  render();
-})();
+@media (max-width: 640px){
+  .presets{ grid-template-columns: 1fr; }
+  .row{ grid-template-columns: 1fr; }
+  .controls{ grid-template-columns: 1fr 1fr; }
+  .btn.ghost{ grid-column: 1 / -1; }
+}
