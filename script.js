@@ -1,12 +1,44 @@
 (() => {
-  // Presets in seconds
+  // ---------- IST CLOCK ----------
+  const istTimeEl = document.getElementById("istTime");
+  const istDateEl = document.getElementById("istDate");
+
+  function startISTClock() {
+    if (!istTimeEl || !istDateEl) return;
+
+    const timeFmt = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+
+    const dateFmt = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    const tick = () => {
+      const now = new Date();
+      istTimeEl.textContent = `${timeFmt.format(now)} IST`;
+      istDateEl.textContent = dateFmt.format(now);
+    };
+
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // ---------- TIMER ----------
   const PRESETS = {
     normal:   { name: "Normal",   focus: 25 * 60, brk:  5 * 60 },
     focus:    { name: "Focus",    focus: 45 * 60, brk: 15 * 60 },
     revision: { name: "Revision", focus: 10 * 60, brk:  3 * 60 },
   };
 
-  // Elements
   const timeDisplay = document.getElementById("timeDisplay");
   const statusText  = document.getElementById("statusText");
   const progressBar = document.getElementById("progressBar");
@@ -26,7 +58,6 @@
 
   const presetButtons = Array.from(document.querySelectorAll(".preset[data-preset]"));
 
-  // State
   let presetKey = "normal";
   let phase = "focus"; // "focus" | "break"
   let remaining = PRESETS[presetKey].focus;
@@ -34,7 +65,6 @@
   let intervalId = null;
   let isRunning = false;
 
-  // Helpers
   const pad2 = (n) => String(n).padStart(2, "0");
   const fmt = (seconds) => `${pad2(Math.floor(seconds / 60))}:${pad2(seconds % 60)}`;
 
@@ -98,13 +128,6 @@
     setButtons();
   }
 
-  function setPhase(newPhase) {
-    phase = newPhase;
-    remaining = currentDuration();
-    setStatus("Ready");
-    render();
-  }
-
   function autoSwitchPhase() {
     phase = (phase === "focus") ? "break" : "focus";
     remaining = currentDuration();
@@ -161,7 +184,15 @@
     render();
   }
 
-  // IMPORTANT: preset click updates timer immediately (and sets to Focus)
+  function setPhase(newPhase) {
+    stopTimer();
+    phase = newPhase;
+    remaining = currentDuration();
+    setStatus("Ready");
+    render();
+  }
+
+  // Preset click updates timer immediately and resets to focus
   function switchPreset(newKey) {
     if (!PRESETS[newKey]) return;
     stopTimer();
@@ -174,19 +205,20 @@
   }
 
   // Events
+  startISTClock();
+
   startBtn.addEventListener("click", startTimer);
   pauseBtn.addEventListener("click", pauseTimer);
   resetBtn.addEventListener("click", resetTimer);
   switchBtn.addEventListener("click", switchPhase);
 
-  focusChip.addEventListener("click", () => { stopTimer(); setPhase("focus"); });
-  breakChip.addEventListener("click", () => { stopTimer(); setPhase("break"); });
+  focusChip.addEventListener("click", () => setPhase("focus"));
+  breakChip.addEventListener("click", () => setPhase("break"));
 
   presetButtons.forEach(btn => {
     btn.addEventListener("click", () => switchPreset(btn.getAttribute("data-preset")));
   });
 
-  // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
 
