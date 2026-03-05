@@ -241,24 +241,11 @@
       openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ",
     },
     {
-      key: "coding",
-      label: "Coding Mode",
-      embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS",
-      openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS",
-    },
-    {
       key: "rain",
       label: "Rain",
       embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8",
       openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DX4PP3DA4J0N8",
     },
-    {
-      key: "custom",
-      label: "Custom",
-      embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd",
-      openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd",
-    },
-  ];
 
   const LS = {
     vibe: "spotify_selected_vibe",
