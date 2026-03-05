@@ -491,6 +491,9 @@
   function openSnake() {
     if (!canPlaySnake()) return toast("Snake is only available during break");
     if (!snakeModal || !snakeBackdrop) return;
+    
+    document.body.classList.add("noScroll"); //lock background scroll
+    
     snakeModal.classList.add("open");
     snakeBackdrop.classList.add("open");
     snakeModal.setAttribute("aria-hidden", "false");
