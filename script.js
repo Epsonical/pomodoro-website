@@ -243,8 +243,8 @@
   // ---------- Spotify (3 vibes only) ----------
   const SPOTIFY_VIBES = [
     { key:"lofi", label:"Lofi Beats",
-      embedUrl:"https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M",
-      openUrl:"https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" },
+      embedUrl:"https://open.spotify.com/embed/playlist//37i9dQZF1DWWQRwui0ExPn?si=k2QN_b5qRzePiLKgP2Kqiw",
+      openUrl:"https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn?si=k2QN_b5qRzePiLKgP2Kqiw" },
     { key:"deep", label:"Deep Focus",
       embedUrl:"https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ",
       openUrl:"https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ" },
