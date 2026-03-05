@@ -3,13 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Study Timer</title>
+  <title>Study Dashboard</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Background -->
   <div class="bg"></div>
+  <canvas id="particles" aria-hidden="true"></canvas>
 
-  <!-- IST clock (top-right corner) -->
+  <!-- IST clock -->
   <div class="istClock" aria-label="IST Clock">
     <div class="istTime" id="istTime">--:--:--</div>
     <div class="istDate" id="istDate">---</div>
@@ -19,20 +21,17 @@
   <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Mobile music button -->
-  <button class="musicFab" id="musicFab" type="button" aria-label="Open music drawer">
-    🎵
-  </button>
+  <button class="musicFab" id="musicFab" type="button" aria-label="Open music drawer">🎵</button>
 
   <!-- Mobile Spotify Drawer -->
   <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
   <section class="drawer" id="drawer" aria-label="Music drawer" aria-hidden="true">
     <div class="drawerHandle" aria-hidden="true"></div>
     <div class="drawerHeader">
-      <div class="drawerTitle">Spotify</div>
+      <div class="drawerTitle">Music</div>
       <button class="iconBtn" id="drawerCloseBtn" type="button" aria-label="Close music drawer">✕</button>
     </div>
 
-    <!-- Spotify module (mobile) -->
     <div class="spotifyCard spotifyCard--drawer" id="spotifyDrawerCard">
       <div class="spotifyHeader">
         <div>
@@ -75,7 +74,7 @@
           ></iframe>
         </div>
 
-        <div class="spotifyFoot" id="spFootDrawer">
+        <div class="spotifyFoot">
           <div class="spotifyHint">Tip: keep volume low while focusing.</div>
           <div class="spotifyHint" id="spMetaDrawer">Mode: Mini • Status: Unlocked</div>
         </div>
@@ -83,30 +82,55 @@
     </div>
   </section>
 
-  <main class="app" aria-label="Study Timer App">
+  <!-- Snake Modal -->
+  <div class="modalBackdrop" id="snakeBackdrop" aria-hidden="true"></div>
+  <section class="modal" id="snakeModal" aria-label="Snake game" aria-hidden="true">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <div>
+          <div class="modalTitle">Snake</div>
+          <div class="modalSub" id="snakeSub">Break-only mini game</div>
+        </div>
+        <button class="iconBtn" id="snakeCloseBtn" type="button" aria-label="Close snake">✕</button>
+      </div>
+
+      <div class="snakeWrap">
+        <canvas id="snakeCanvas" width="360" height="360" aria-label="Snake canvas"></canvas>
+      </div>
+
+      <div class="snakeFooter">
+        <div class="snakeInfo">
+          <span>Score: <b id="snakeScore">0</b></span>
+          <span>High: <b id="snakeHigh">0</b></span>
+        </div>
+        <div class="snakeHint">
+          Desktop: Arrow keys • Mobile: Swipe • Press <b>Esc</b> to close
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="app" aria-label="Study Dashboard">
     <!-- Sidebar -->
-    <aside class="sidebar" aria-label="Presets">
+    <aside class="sidebar" aria-label="Sidebar">
       <div class="brand">
         <div class="logo">⏳</div>
         <div>
-          <div class="brandTitle">Study Timer</div>
+          <div class="brandTitle">Study Dashboard</div>
           <div class="brandSub" id="statusText">Ready</div>
         </div>
       </div>
 
       <div class="sectionTitle">Presets</div>
-
       <div class="presetList" role="tablist" aria-label="Timer presets">
         <button class="preset is-active" type="button" data-preset="normal" role="tab" aria-selected="true">
           <div class="presetName">Normal</div>
           <div class="presetMeta">Focus 25 • Break 5</div>
         </button>
-
         <button class="preset" type="button" data-preset="focus" role="tab" aria-selected="false">
           <div class="presetName">Focus</div>
           <div class="presetMeta">Focus 45 • Break 15</div>
         </button>
-
         <button class="preset" type="button" data-preset="revision" role="tab" aria-selected="false">
           <div class="presetName">Revision</div>
           <div class="presetMeta">Focus 10 • Break 3</div>
@@ -132,7 +156,15 @@
         </div>
       </div>
 
-      <!-- Spotify module (desktop sidebar) -->
+      <!-- Games -->
+      <div class="sectionTitle">Games</div>
+      <div class="gameCard">
+        <button class="gameBtn" id="openSnakeBtn" type="button">
+          🐍 Snake <span class="gameMeta" id="snakeAvail">Break only</span>
+        </button>
+      </div>
+
+      <!-- Spotify (desktop) -->
       <div class="spotifyCard" id="spotifySidebarCard" aria-label="Spotify module">
         <div class="spotifyHeader">
           <div>
@@ -175,7 +207,7 @@
             ></iframe>
           </div>
 
-          <div class="spotifyFoot" id="spFootSide">
+          <div class="spotifyFoot">
             <div class="spotifyHint">Tip: keep volume low while focusing.</div>
             <div class="spotifyHint" id="spMetaSide">Mode: Mini • Status: Unlocked</div>
           </div>
@@ -187,11 +219,13 @@
         <div class="keyGrid">
           <div class="key"><span>Space</span><span>Start/Pause</span></div>
           <div class="key"><span>R</span><span>Reset</span></div>
-          <div class="key"><span>S</span><span>Switch</span></div>
+          <div class="key"><span>S</span><span>Switch phase</span></div>
+          <div class="key"><span>G</span><span>Snake (break)</span></div>
           <div class="key"><span>M</span><span>Music collapse</span></div>
           <div class="key"><span>V</span><span>Mini/Full</span></div>
           <div class="key"><span>O</span><span>Open Spotify</span></div>
           <div class="key"><span>C</span><span>Copy link</span></div>
+          <div class="key"><span>Esc</span><span>Close modal</span></div>
         </div>
       </div>
     </aside>
@@ -222,7 +256,7 @@
           <button class="btn ghost" id="switchBtn" type="button">Switch Focus/Break</button>
         </div>
 
-        <p class="note">Preset click updates timer. Timer end auto-switches phase.</p>
+        <p class="note">Timer end auto-switches phase. Snake unlocks during break.</p>
       </div>
     </section>
   </main>
