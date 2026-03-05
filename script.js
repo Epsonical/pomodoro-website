@@ -1,5 +1,5 @@
 (() => {
-  // -------------------- TOAST --------------------
+  // ---------- Toast ----------
   const toastEl = document.getElementById("toast");
   let toastTimer = null;
   function toast(msg) {
@@ -10,40 +10,73 @@
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1400);
   }
 
-  // -------------------- IST CLOCK --------------------
+  // ---------- IST Clock ----------
   const istTimeEl = document.getElementById("istTime");
   const istDateEl = document.getElementById("istDate");
-
   function startISTClock() {
     if (!istTimeEl || !istDateEl) return;
-
     const timeFmt = new Intl.DateTimeFormat("en-IN", {
       timeZone: "Asia/Kolkata",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
     });
-
     const dateFmt = new Intl.DateTimeFormat("en-IN", {
       timeZone: "Asia/Kolkata",
-      weekday: "short",
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
+      weekday: "short", day: "2-digit", month: "short", year: "numeric"
     });
-
     const tick = () => {
       const now = new Date();
       istTimeEl.textContent = `${timeFmt.format(now)} IST`;
       istDateEl.textContent = dateFmt.format(now);
     };
-
     tick();
     setInterval(tick, 1000);
   }
 
-  // -------------------- TIMER --------------------
+  // ---------- Background particles ----------
+  const pCanvas = document.getElementById("particles");
+  const pCtx = pCanvas?.getContext("2d");
+  let particles = [];
+  function resizeParticles() {
+    if (!pCanvas || !pCtx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    pCanvas.width = Math.floor(window.innerWidth * dpr);
+    pCanvas.height = Math.floor(window.innerHeight * dpr);
+    pCanvas.style.width = "100%";
+    pCanvas.style.height = "100%";
+    pCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const count = Math.min(110, Math.floor((window.innerWidth * window.innerHeight) / 22000));
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: 0.6 + Math.random() * 1.6,
+      vx: -0.12 + Math.random() * 0.24,
+      vy: -0.10 + Math.random() * 0.20,
+      a: 0.12 + Math.random() * 0.25
+    }));
+  }
+  function animParticles() {
+    if (!pCanvas || !pCtx) return;
+    pCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    pCtx.fillStyle = "rgba(160,200,255,0.7)";
+    for (const pt of particles) {
+      pt.x += pt.vx;
+      pt.y += pt.vy;
+      if (pt.x < -10) pt.x = window.innerWidth + 10;
+      if (pt.x > window.innerWidth + 10) pt.x = -10;
+      if (pt.y < -10) pt.y = window.innerHeight + 10;
+      if (pt.y > window.innerHeight + 10) pt.y = -10;
+
+      pCtx.globalAlpha = pt.a;
+      pCtx.beginPath();
+      pCtx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+      pCtx.fill();
+    }
+    pCtx.globalAlpha = 1;
+    requestAnimationFrame(animParticles);
+  }
+
+  // ---------- Timer ----------
   const PRESETS = {
     normal:   { name: "Normal",   focus: 25 * 60, brk:  5 * 60 },
     focus:    { name: "Focus",    focus: 45 * 60, brk: 15 * 60 },
@@ -72,7 +105,6 @@
   let presetKey = "normal";
   let phase = "focus"; // "focus" | "break"
   let remaining = PRESETS[presetKey].focus;
-
   let intervalId = null;
   let isRunning = false;
 
@@ -83,19 +115,13 @@
     const p = PRESETS[presetKey];
     return phase === "focus" ? p.focus : p.brk;
   }
-
-  function setStatus(text) {
-    if (statusText) statusText.textContent = text;
-  }
+  function setStatus(t) { if (statusText) statusText.textContent = t; }
 
   function setButtons() {
     if (!startBtn || !pauseBtn) return;
-
     startBtn.disabled = isRunning;
     pauseBtn.disabled = !isRunning;
-
-    const dur = currentDuration();
-    const started = remaining < dur;
+    const started = remaining < currentDuration();
     startBtn.textContent = isRunning ? "Running…" : (started ? "Resume" : "Start");
   }
 
@@ -126,13 +152,12 @@
 
   function render() {
     if (timeDisplay) timeDisplay.textContent = fmt(remaining);
-
-    const dur = currentDuration();
-    const ratio = Math.max(0, Math.min(1, remaining / dur));
+    const ratio = Math.max(0, Math.min(1, remaining / currentDuration()));
     if (progressBar) progressBar.style.width = `${ratio * 100}%`;
-
     renderMeta();
     setButtons();
+    updateSpotifyLockState();
+    updateSnakeAvailability();
   }
 
   function stopTimer() {
@@ -140,7 +165,7 @@
     intervalId = null;
     isRunning = false;
     setButtons();
-    updateSpotifyLockState(); // integrate
+    updateSpotifyLockState();
   }
 
   function autoSwitchPhase() {
@@ -150,23 +175,18 @@
 
   function tick() {
     remaining -= 1;
-
     if (remaining <= 0) {
       remaining = 0;
       stopTimer();
       render();
       setStatus("Time’s up! Switching…");
-
       setTimeout(() => {
         autoSwitchPhase();
         setStatus("Ready");
         render();
-        updateSpotifyLockState(); // phase changed
       }, 600);
-
       return;
     }
-
     render();
   }
 
@@ -199,7 +219,6 @@
     remaining = currentDuration();
     setStatus("Ready");
     render();
-    updateSpotifyLockState();
   }
 
   function setPhase(newPhase) {
@@ -208,10 +227,8 @@
     remaining = currentDuration();
     setStatus("Ready");
     render();
-    updateSpotifyLockState();
   }
 
-  // Preset click updates timer immediately and resets to focus
   function switchPreset(newKey) {
     if (!PRESETS[newKey]) return;
     stopTimer();
@@ -221,32 +238,20 @@
     setActivePresetUI();
     setStatus("Ready");
     render();
-    updateSpotifyLockState();
   }
 
-  // -------------------- SPOTIFY MODULE --------------------
-  // Vibes (you can replace these URLs later)
-  // embedUrl must be spotify.com/embed/... and openUrl is spotify.com/...
- const SPOTIFY_VIBES = [
-  {
-    key: "lofi",
-    label: "Lofi Beats",
-    embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M",
-    openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
-  },
-  {
-    key: "deep",
-    label: "Deep Focus",
-    embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ",
-    openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ",
-  },
-  {
-    key: "rain",
-    label: "Rain",
-    embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8",
-    openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DX4PP3DA4J0N8",
-  },
-];
+  // ---------- Spotify (3 vibes only) ----------
+  const SPOTIFY_VIBES = [
+    { key:"lofi", label:"Lofi Beats",
+      embedUrl:"https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M",
+      openUrl:"https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" },
+    { key:"deep", label:"Deep Focus",
+      embedUrl:"https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ",
+      openUrl:"https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ" },
+    { key:"rain", label:"Rain",
+      embedUrl:"https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8",
+      openUrl:"https://open.spotify.com/playlist/37i9dQZF1DX4PP3DA4J0N8" },
+  ];
 
   const LS = {
     vibe: "spotify_selected_vibe",
@@ -255,15 +260,8 @@
     focusLock: "spotify_focus_lock",
   };
 
-  function safeGetBool(key, fallback) {
-    const v = localStorage.getItem(key);
-    if (v === null) return fallback;
-    return v === "1";
-  }
-  function safeGetStr(key, fallback) {
-    const v = localStorage.getItem(key);
-    return (v === null || v === "") ? fallback : v;
-  }
+  const safeGetBool = (k, fb) => (localStorage.getItem(k) ?? (fb ? "1" : "0")) === "1";
+  const safeGetStr  = (k, fb) => (localStorage.getItem(k) ?? fb);
 
   let spSelectedKey = safeGetStr(LS.vibe, "lofi");
   if (!SPOTIFY_VIBES.find(v => v.key === spSelectedKey)) spSelectedKey = "lofi";
@@ -272,241 +270,176 @@
   let spSize = safeGetStr(LS.size, "mini");
   if (spSize !== "mini" && spSize !== "full") spSize = "mini";
 
-  let spFocusLockEnabled = safeGetBool(LS.focusLock, true);
+  let spFocusLockEnabled = safeGetBool(LS.focusLock, true); // ON by default
 
-  // Elements (sidebar)
-  const spNowSide = document.getElementById("spNowSide");
-  const spStatusSide = document.getElementById("spStatusSide");
-  const spMetaSide = document.getElementById("spMetaSide");
-  const spBodySide = document.getElementById("spBodySide");
-  const spIframeSide = document.getElementById("spIframeSide");
-  const spVibesSide = document.getElementById("spVibesSide");
-  const spCollapseSide = document.getElementById("spCollapseSide");
-  const spOpenSide = document.getElementById("spOpenSide");
-  const spCopySide = document.getElementById("spCopySide");
-  const spMiniSide = document.getElementById("spMiniSide");
-  const spFullSide = document.getElementById("spFullSide");
+  const sp = {
+    // sidebar
+    nowSide: document.getElementById("spNowSide"),
+    statusSide: document.getElementById("spStatusSide"),
+    metaSide: document.getElementById("spMetaSide"),
+    bodySide: document.getElementById("spBodySide"),
+    iframeSide: document.getElementById("spIframeSide"),
+    vibesSide: document.getElementById("spVibesSide"),
+    collapseSide: document.getElementById("spCollapseSide"),
+    openSide: document.getElementById("spOpenSide"),
+    copySide: document.getElementById("spCopySide"),
+    miniSide: document.getElementById("spMiniSide"),
+    fullSide: document.getElementById("spFullSide"),
+    // drawer
+    nowDrawer: document.getElementById("spNowDrawer"),
+    statusDrawer: document.getElementById("spStatusDrawer"),
+    metaDrawer: document.getElementById("spMetaDrawer"),
+    bodyDrawer: document.getElementById("spBodyDrawer"),
+    iframeDrawer: document.getElementById("spIframeDrawer"),
+    vibesDrawer: document.getElementById("spVibesDrawer"),
+    collapseDrawer: document.getElementById("spCollapseDrawer"),
+    openDrawer: document.getElementById("spOpenDrawer"),
+    copyDrawer: document.getElementById("spCopyDrawer"),
+    miniDrawer: document.getElementById("spMiniDrawer"),
+    fullDrawer: document.getElementById("spFullDrawer"),
+  };
 
-  // Elements (drawer)
-  const spNowDrawer = document.getElementById("spNowDrawer");
-  const spStatusDrawer = document.getElementById("spStatusDrawer");
-  const spMetaDrawer = document.getElementById("spMetaDrawer");
-  const spBodyDrawer = document.getElementById("spBodyDrawer");
-  const spIframeDrawer = document.getElementById("spIframeDrawer");
-  const spVibesDrawer = document.getElementById("spVibesDrawer");
-  const spCollapseDrawer = document.getElementById("spCollapseDrawer");
-  const spOpenDrawer = document.getElementById("spOpenDrawer");
-  const spCopyDrawer = document.getElementById("spCopyDrawer");
-  const spMiniDrawer = document.getElementById("spMiniDrawer");
-  const spFullDrawer = document.getElementById("spFullDrawer");
-
-  function getSelectedVibe() {
+  function selectedVibe() {
     return SPOTIFY_VIBES.find(v => v.key === spSelectedKey) || SPOTIFY_VIBES[0];
-  }
-
-  function isMobileLayout() {
-    return window.matchMedia("(max-width: 860px)").matches;
-  }
-
-  function setIframeHeight(iframeEl, size) {
-    if (!iframeEl) return;
-    iframeEl.height = (size === "full") ? "420" : "152";
-  }
-
-  function setSegButtons(miniBtn, fullBtn, size) {
-    if (!miniBtn || !fullBtn) return;
-    miniBtn.classList.toggle("is-active", size === "mini");
-    fullBtn.classList.toggle("is-active", size === "full");
-  }
-
-  function setCollapseBtn(btnEl, collapsed) {
-    if (!btnEl) return;
-    btnEl.textContent = collapsed ? "▸" : "▾";
-  }
-
-  function setLockedUI(containerId, locked) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-    el.classList.toggle("spotifyLocked", locked);
-  }
-
-  function setVibeChips(container, onClick) {
-    if (!container) return;
-    container.innerHTML = "";
-    for (const v of SPOTIFY_VIBES) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "vibeChip" + (v.key === spSelectedKey ? " is-active" : "");
-      btn.textContent = v.label;
-      btn.addEventListener("click", () => onClick(v.key));
-      container.appendChild(btn);
-    }
-  }
-
-  function updateVibeChipActive(container) {
-    if (!container) return;
-    const buttons = Array.from(container.querySelectorAll(".vibeChip"));
-    for (const b of buttons) {
-      b.classList.toggle("is-active", b.textContent === (getSelectedVibe().label));
-    }
-    // safer: match by order
-    const vibe = getSelectedVibe();
-    buttons.forEach((btn, idx) => {
-      const key = SPOTIFY_VIBES[idx]?.key;
-      btn.classList.toggle("is-active", key === vibe.key);
-    });
-  }
-
-  function applySpotifyTo(sideOrDrawer) {
-    const vibe = getSelectedVibe();
-    const isSide = sideOrDrawer === "side";
-
-    const nowEl = isSide ? spNowSide : spNowDrawer;
-    const statusEl = isSide ? spStatusSide : spStatusDrawer;
-    const metaEl = isSide ? spMetaSide : spMetaDrawer;
-    const bodyEl = isSide ? spBodySide : spBodyDrawer;
-    const iframeEl = isSide ? spIframeSide : spIframeDrawer;
-    const vibesEl = isSide ? spVibesSide : spVibesDrawer;
-    const collapseBtn = isSide ? spCollapseSide : spCollapseDrawer;
-    const miniBtn = isSide ? spMiniSide : spMiniDrawer;
-    const fullBtn = isSide ? spFullSide : spFullDrawer;
-
-    if (nowEl) nowEl.textContent = vibe.label;
-
-    // collapse state
-    if (bodyEl) bodyEl.style.display = spCollapsed ? "none" : "block";
-    setCollapseBtn(collapseBtn, spCollapsed);
-
-    // size state
-    setIframeHeight(iframeEl, spSize);
-    setSegButtons(miniBtn, fullBtn, spSize);
-
-    // iframe src
-    if (iframeEl) iframeEl.src = vibe.embedUrl + "?utm_source=generator";
-
-    // vibe chips
-    setVibeChips(vibesEl, (key) => switchSpotifyVibe(key));
-    updateVibeChipActive(vibesEl);
-
-    // locked state text/meta
-    const lockedNow = computeSpotifyLockedNow();
-    const lockText = lockedNow ? "Locked (Focus running)" : "Unlocked";
-    if (statusEl) statusEl.textContent = lockText;
-    if (metaEl) metaEl.textContent = `Mode: ${spSize === "full" ? "Full" : "Mini"} • Status: ${lockedNow ? "Locked" : "Unlocked"}`;
   }
 
   function computeSpotifyLockedNow() {
     return spFocusLockEnabled && isRunning && phase === "focus";
   }
 
-  function updateSpotifyLockState() {
-    const lockedNow = computeSpotifyLockedNow();
+  function setIframeHeight(iframeEl) {
+    if (!iframeEl) return;
+    iframeEl.height = (spSize === "full") ? "420" : "152";
+  }
 
-    // Optionally auto-collapse when lock starts
-    // (Feels clean. If you don't want it, delete this block.)
-    if (lockedNow && !spCollapsed) {
+  function setCollapseIcon(btn) {
+    if (!btn) return;
+    btn.textContent = spCollapsed ? "▸" : "▾";
+  }
+
+  function setSeg(miniBtn, fullBtn) {
+    if (!miniBtn || !fullBtn) return;
+    miniBtn.classList.toggle("is-active", spSize === "mini");
+    fullBtn.classList.toggle("is-active", spSize === "full");
+  }
+
+  function renderVibes(container) {
+    if (!container) return;
+    container.innerHTML = "";
+    for (const v of SPOTIFY_VIBES) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "vibeChip" + (v.key === spSelectedKey ? " is-active" : "");
+      b.textContent = v.label;
+      b.addEventListener("click", () => switchSpotifyVibe(v.key));
+      container.appendChild(b);
+    }
+  }
+
+  function applySpotify(where) {
+    const isSide = where === "side";
+    const vibe = selectedVibe();
+    const locked = computeSpotifyLockedNow();
+
+    const nowEl = isSide ? sp.nowSide : sp.nowDrawer;
+    const statusEl = isSide ? sp.statusSide : sp.statusDrawer;
+    const metaEl = isSide ? sp.metaSide : sp.metaDrawer;
+    const bodyEl = isSide ? sp.bodySide : sp.bodyDrawer;
+    const iframeEl = isSide ? sp.iframeSide : sp.iframeDrawer;
+    const vibesEl = isSide ? sp.vibesSide : sp.vibesDrawer;
+    const collapseBtn = isSide ? sp.collapseSide : sp.collapseDrawer;
+    const miniBtn = isSide ? sp.miniSide : sp.miniDrawer;
+    const fullBtn = isSide ? sp.fullSide : sp.fullDrawer;
+
+    if (nowEl) nowEl.textContent = vibe.label;
+    if (statusEl) statusEl.textContent = locked ? "Locked (focus running)" : "Unlocked";
+    if (metaEl) metaEl.textContent = `Mode: ${spSize.toUpperCase()} • Status: ${locked ? "Locked" : "Unlocked"}`;
+
+    if (bodyEl) bodyEl.style.display = spCollapsed ? "none" : "block";
+    setCollapseIcon(collapseBtn);
+
+    if (iframeEl) iframeEl.src = vibe.embedUrl + "?utm_source=generator";
+    setIframeHeight(iframeEl);
+    setSeg(miniBtn, fullBtn);
+
+    renderVibes(vibesEl);
+
+    // disable vibe/size switching while locked
+    const disable = locked;
+    if (vibesEl) vibesEl.querySelectorAll("button").forEach(b => (b.disabled = disable));
+    if (miniBtn) miniBtn.disabled = disable;
+    if (fullBtn) fullBtn.disabled = disable;
+
+    // subtle lock style
+    const cardId = isSide ? "spotifySidebarCard" : "spotifyDrawerCard";
+    const card = document.getElementById(cardId);
+    if (card) card.classList.toggle("spotifyLocked", locked);
+  }
+
+  function updateSpotifyLockState() {
+    // optional: auto-collapse when lock starts
+    if (computeSpotifyLockedNow() && !spCollapsed) {
       spCollapsed = true;
       localStorage.setItem(LS.collapsed, "1");
     }
-
-    // Apply to both views
-    applySpotifyTo("side");
-    applySpotifyTo("drawer");
-
-    // Disable switching controls when locked
-    setSpotifyControlsEnabled(!lockedNow);
-
-    // Add subtle locked styling
-    setLockedUI("spotifySidebarCard", lockedNow);
-    setLockedUI("spotifyDrawerCard", lockedNow);
+    applySpotify("side");
+    applySpotify("drawer");
   }
 
-  function setSpotifyControlsEnabled(enabled) {
-    // When locked, we still allow Open/Copy and Collapse, but block vibe & size toggles
-    const disable = !enabled;
-
-    const vibeBtnsSide = spVibesSide ? Array.from(spVibesSide.querySelectorAll("button")) : [];
-    const vibeBtnsDrawer = spVibesDrawer ? Array.from(spVibesDrawer.querySelectorAll("button")) : [];
-
-    vibeBtnsSide.forEach(b => b.disabled = disable);
-    vibeBtnsDrawer.forEach(b => b.disabled = disable);
-
-    if (spMiniSide) spMiniSide.disabled = disable;
-    if (spFullSide) spFullSide.disabled = disable;
-    if (spMiniDrawer) spMiniDrawer.disabled = disable;
-    if (spFullDrawer) spFullDrawer.disabled = disable;
-  }
-
-  function switchSpotifyVibe(newKey) {
-    if (!SPOTIFY_VIBES.find(v => v.key === newKey)) return;
-
-    // Block switching when locked (focus running)
-    if (computeSpotifyLockedNow()) {
-      toast("Locked during focus");
-      return;
-    }
-
-    spSelectedKey = newKey;
+  function switchSpotifyVibe(key) {
+    if (!SPOTIFY_VIBES.find(v => v.key === key)) return;
+    if (computeSpotifyLockedNow()) return toast("Locked during focus");
+    spSelectedKey = key;
     localStorage.setItem(LS.vibe, spSelectedKey);
-
-    applySpotifyTo("side");
-    applySpotifyTo("drawer");
-    toast(`Vibe: ${getSelectedVibe().label}`);
+    applySpotify("side");
+    applySpotify("drawer");
+    toast(`Vibe: ${selectedVibe().label}`);
   }
 
   function toggleSpotifyCollapse() {
     spCollapsed = !spCollapsed;
     localStorage.setItem(LS.collapsed, spCollapsed ? "1" : "0");
-    applySpotifyTo("side");
-    applySpotifyTo("drawer");
+    applySpotify("side");
+    applySpotify("drawer");
   }
 
   function setSpotifySize(size) {
-    if (size !== "mini" && size !== "full") return;
-
-    if (computeSpotifyLockedNow()) {
-      toast("Locked during focus");
-      return;
-    }
-
+    if (computeSpotifyLockedNow()) return toast("Locked during focus");
     spSize = size;
     localStorage.setItem(LS.size, spSize);
-    applySpotifyTo("side");
-    applySpotifyTo("drawer");
+    applySpotify("side");
+    applySpotify("drawer");
     toast(`Player: ${spSize.toUpperCase()}`);
   }
 
   function openSpotify() {
-    const vibe = getSelectedVibe();
-    window.open(vibe.openUrl, "_blank", "noopener,noreferrer");
+    window.open(selectedVibe().openUrl, "_blank", "noopener,noreferrer");
   }
 
   async function copySpotifyLink() {
-    const vibe = getSelectedVibe();
+    const url = selectedVibe().openUrl;
     try {
-      await navigator.clipboard.writeText(vibe.openUrl);
+      await navigator.clipboard.writeText(url);
       toast("Copied Spotify link");
     } catch {
-      // fallback: prompt
-      window.prompt("Copy this link:", vibe.openUrl);
+      window.prompt("Copy this link:", url);
     }
   }
 
-  // Wire spotify buttons (side)
-  if (spCollapseSide) spCollapseSide.addEventListener("click", toggleSpotifyCollapse);
-  if (spOpenSide) spOpenSide.addEventListener("click", openSpotify);
-  if (spCopySide) spCopySide.addEventListener("click", copySpotifyLink);
-  if (spMiniSide) spMiniSide.addEventListener("click", () => setSpotifySize("mini"));
-  if (spFullSide) spFullSide.addEventListener("click", () => setSpotifySize("full"));
+  // hook spotify buttons
+  if (sp.collapseSide) sp.collapseSide.addEventListener("click", toggleSpotifyCollapse);
+  if (sp.openSide) sp.openSide.addEventListener("click", openSpotify);
+  if (sp.copySide) sp.copySide.addEventListener("click", copySpotifyLink);
+  if (sp.miniSide) sp.miniSide.addEventListener("click", () => setSpotifySize("mini"));
+  if (sp.fullSide) sp.fullSide.addEventListener("click", () => setSpotifySize("full"));
 
-  // Wire spotify buttons (drawer)
-  if (spCollapseDrawer) spCollapseDrawer.addEventListener("click", toggleSpotifyCollapse);
-  if (spOpenDrawer) spOpenDrawer.addEventListener("click", openSpotify);
-  if (spCopyDrawer) spCopyDrawer.addEventListener("click", copySpotifyLink);
-  if (spMiniDrawer) spMiniDrawer.addEventListener("click", () => setSpotifySize("mini"));
-  if (spFullDrawer) spFullDrawer.addEventListener("click", () => setSpotifySize("full"));
+  if (sp.collapseDrawer) sp.collapseDrawer.addEventListener("click", toggleSpotifyCollapse);
+  if (sp.openDrawer) sp.openDrawer.addEventListener("click", openSpotify);
+  if (sp.copyDrawer) sp.copyDrawer.addEventListener("click", copySpotifyLink);
+  if (sp.miniDrawer) sp.miniDrawer.addEventListener("click", () => setSpotifySize("mini"));
+  if (sp.fullDrawer) sp.fullDrawer.addEventListener("click", () => setSpotifySize("full"));
 
-  // -------------------- MOBILE DRAWER --------------------
+  // ---------- Mobile drawer ----------
   const musicFab = document.getElementById("musicFab");
   const drawer = document.getElementById("drawer");
   const drawerBackdrop = document.getElementById("drawerBackdrop");
@@ -531,76 +464,272 @@
   if (drawerBackdrop) drawerBackdrop.addEventListener("click", closeDrawer);
   if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeDrawer);
 
-  // Basic swipe-down to close (mobile)
-  let startY = null;
-  if (drawer) {
-    drawer.addEventListener("touchstart", (e) => {
-      startY = e.touches?.[0]?.clientY ?? null;
-    }, { passive: true });
+  // ---------- Snake (break only) ----------
+  const openSnakeBtn = document.getElementById("openSnakeBtn");
+  const snakeAvail = document.getElementById("snakeAvail");
+  const snakeBackdrop = document.getElementById("snakeBackdrop");
+  const snakeModal = document.getElementById("snakeModal");
+  const snakeCloseBtn = document.getElementById("snakeCloseBtn");
+  const snakeCanvas = document.getElementById("snakeCanvas");
+  const snakeScoreEl = document.getElementById("snakeScore");
+  const snakeHighEl = document.getElementById("snakeHigh");
 
-    drawer.addEventListener("touchmove", (e) => {
-      if (startY === null) return;
-      const y = e.touches?.[0]?.clientY ?? startY;
-      const dy = y - startY;
-      if (dy > 80) {
-        startY = null;
-        closeDrawer();
-      }
-    }, { passive: true });
+  const SNAKE_LS_HIGH = "snake_high_score_v1";
+  let snakeHigh = Number(localStorage.getItem(SNAKE_LS_HIGH) || "0");
+  if (snakeHighEl) snakeHighEl.textContent = String(snakeHigh);
 
-    drawer.addEventListener("touchend", () => { startY = null; }, { passive: true });
+  function canPlaySnake() {
+    return phase === "break"; // only during break phase
   }
 
-  // -------------------- KEYBOARD SHORTCUTS --------------------
+  function updateSnakeAvailability() {
+    const ok = canPlaySnake();
+    if (openSnakeBtn) openSnakeBtn.disabled = !ok;
+    if (snakeAvail) snakeAvail.textContent = ok ? "Available" : "Break only";
+  }
+
+  function openSnake() {
+    if (!canPlaySnake()) return toast("Snake is only available during break");
+    if (!snakeModal || !snakeBackdrop) return;
+    snakeModal.classList.add("open");
+    snakeBackdrop.classList.add("open");
+    snakeModal.setAttribute("aria-hidden", "false");
+    snakeBackdrop.setAttribute("aria-hidden", "false");
+    startSnakeGame();
+  }
+
+  function closeSnake() {
+    if (!snakeModal || !snakeBackdrop) return;
+    snakeModal.classList.remove("open");
+    snakeBackdrop.classList.remove("open");
+    snakeModal.setAttribute("aria-hidden", "true");
+    snakeBackdrop.setAttribute("aria-hidden", "true");
+    stopSnakeGame();
+  }
+
+  if (openSnakeBtn) openSnakeBtn.addEventListener("click", openSnake);
+  if (snakeCloseBtn) snakeCloseBtn.addEventListener("click", closeSnake);
+  if (snakeBackdrop) snakeBackdrop.addEventListener("click", closeSnake);
+
+  // Snake implementation (simple, smooth)
+  const ctx = snakeCanvas?.getContext("2d");
+  const grid = 18;          // 18x18 board
+  const cell = 20;          // logical cell size for drawing
+  const sizePx = grid * cell;
+
+  let snakeTimer = null;
+  let snake = [];
+  let dir = { x: 1, y: 0 };
+  let nextDir = { x: 1, y: 0 };
+  let food = { x: 8, y: 8 };
+  let score = 0;
+
+  function randFood() {
+    while (true) {
+      const x = Math.floor(Math.random() * grid);
+      const y = Math.floor(Math.random() * grid);
+      if (!snake.some(s => s.x === x && s.y === y)) return { x, y };
+    }
+  }
+
+  function resetSnake() {
+    snake = [{ x: 6, y: 9 }, { x: 5, y: 9 }, { x: 4, y: 9 }];
+    dir = { x: 1, y: 0 };
+    nextDir = { x: 1, y: 0 };
+    food = randFood();
+    score = 0;
+    if (snakeScoreEl) snakeScoreEl.textContent = "0";
+  }
+
+  function drawSnake() {
+    if (!ctx || !snakeCanvas) return;
+
+    // fit canvas resolution to look crisp
+    snakeCanvas.width = sizePx;
+    snakeCanvas.height = sizePx;
+
+    // background
+    ctx.clearRect(0, 0, sizePx, sizePx);
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(0, 0, sizePx, sizePx);
+
+    // grid dots (subtle)
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "rgba(160,200,255,1)";
+    for (let y = 0; y < grid; y++) {
+      for (let x = 0; x < grid; x++) {
+        if ((x + y) % 3 === 0) ctx.fillRect(x * cell + 9, y * cell + 9, 2, 2);
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // food
+    ctx.fillStyle = "rgba(120,170,255,0.95)";
+    ctx.beginPath();
+    ctx.arc(food.x * cell + cell/2, food.y * cell + cell/2, cell*0.30, 0, Math.PI*2);
+    ctx.fill();
+
+    // snake
+    for (let i = 0; i < snake.length; i++) {
+      const seg = snake[i];
+      const alpha = 0.95 - i * 0.03;
+      ctx.fillStyle = `rgba(200,230,255,${Math.max(0.45, alpha)})`;
+      ctx.fillRect(seg.x * cell + 2, seg.y * cell + 2, cell - 4, cell - 4);
+    }
+  }
+
+  function stepSnake() {
+    // commit direction
+    dir = nextDir;
+
+    const head = snake[0];
+    const newHead = { x: head.x + dir.x, y: head.y + dir.y };
+
+    // wrap around edges (feels nicer for break game)
+    if (newHead.x < 0) newHead.x = grid - 1;
+    if (newHead.x >= grid) newHead.x = 0;
+    if (newHead.y < 0) newHead.y = grid - 1;
+    if (newHead.y >= grid) newHead.y = 0;
+
+    // collision with self
+    if (snake.some(s => s.x === newHead.x && s.y === newHead.y)) {
+      // game over -> save high, reset
+      if (score > snakeHigh) {
+        snakeHigh = score;
+        localStorage.setItem(SNAKE_LS_HIGH, String(snakeHigh));
+        if (snakeHighEl) snakeHighEl.textContent = String(snakeHigh);
+      }
+      toast("Game over!");
+      resetSnake();
+      drawSnake();
+      return;
+    }
+
+    snake.unshift(newHead);
+
+    // eat
+    if (newHead.x === food.x && newHead.y === food.y) {
+      score += 1;
+      if (snakeScoreEl) snakeScoreEl.textContent = String(score);
+      food = randFood();
+    } else {
+      snake.pop();
+    }
+
+    drawSnake();
+  }
+
+  function startSnakeGame() {
+    if (!ctx) return;
+    resetSnake();
+    drawSnake();
+    if (snakeTimer) clearInterval(snakeTimer);
+    snakeTimer = setInterval(stepSnake, 110);
+  }
+
+  function stopSnakeGame() {
+    if (snakeTimer) clearInterval(snakeTimer);
+    snakeTimer = null;
+  }
+
+  // input: keyboard
+  function setDir(dx, dy) {
+    // prevent reversing
+    if (dx === -dir.x && dy === -dir.y) return;
+    nextDir = { x: dx, y: dy };
+  }
+
   document.addEventListener("keydown", (e) => {
+    // ignore when typing
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
 
     const k = e.key.toLowerCase();
 
-    if (e.code === "Space") {
-      e.preventDefault();
-      isRunning ? pauseTimer() : startTimer();
-      return;
-    }
-
+    // timer keys
+    if (e.code === "Space") { e.preventDefault(); isRunning ? pauseTimer() : startTimer(); return; }
     if (k === "r") { resetTimer(); return; }
     if (k === "s") { switchPhase(); return; }
 
+    // spotify keys
     if (k === "m") { toggleSpotifyCollapse(); return; }
     if (k === "v") { setSpotifySize(spSize === "mini" ? "full" : "mini"); return; }
     if (k === "o") { openSpotify(); return; }
     if (k === "c") { copySpotifyLink(); return; }
-    if (k === "escape") { closeDrawer(); return; }
+
+    // snake keys
+    if (k === "g") { openSnake(); return; }
+    if (k === "escape") { closeSnake(); closeDrawer(); return; }
+
+    if (snakeModal?.classList.contains("open")) {
+      if (e.key === "ArrowUp") setDir(0, -1);
+      else if (e.key === "ArrowDown") setDir(0, 1);
+      else if (e.key === "ArrowLeft") setDir(-1, 0);
+      else if (e.key === "ArrowRight") setDir(1, 0);
+    }
   });
 
-  // -------------------- TIMER EVENTS --------------------
+  // input: swipe (mobile) on snake canvas
+  let sx = null, sy = null;
+  if (snakeCanvas) {
+    snakeCanvas.addEventListener("touchstart", (e) => {
+      const t = e.touches?.[0];
+      if (!t) return;
+      sx = t.clientX; sy = t.clientY;
+    }, { passive: true });
+
+    snakeCanvas.addEventListener("touchend", (e) => {
+      if (sx === null || sy === null) return;
+      const t = e.changedTouches?.[0];
+      if (!t) return;
+      const dx = t.clientX - sx;
+      const dy = t.clientY - sy;
+      sx = sy = null;
+
+      if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
+
+      if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+      else setDir(0, dy > 0 ? 1 : -1);
+    }, { passive: true });
+  }
+
+  // ---------- Mobile drawer ----------
+  function openDrawer() {
+    if (!drawer || !drawerBackdrop) return;
+    drawer.classList.add("open");
+    drawerBackdrop.classList.add("open");
+    drawer.setAttribute("aria-hidden", "false");
+    drawerBackdrop.setAttribute("aria-hidden", "false");
+  }
+  function closeDrawer() {
+    if (!drawer || !drawerBackdrop) return;
+    drawer.classList.remove("open");
+    drawerBackdrop.classList.remove("open");
+    drawer.setAttribute("aria-hidden", "true");
+    drawerBackdrop.setAttribute("aria-hidden", "true");
+  }
+  if (musicFab) musicFab.addEventListener("click", openDrawer);
+  if (drawerBackdrop) drawerBackdrop.addEventListener("click", closeDrawer);
+  if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeDrawer);
+
+  // ---------- Wire timer UI ----------
   if (startBtn) startBtn.addEventListener("click", startTimer);
   if (pauseBtn) pauseBtn.addEventListener("click", pauseTimer);
   if (resetBtn) resetBtn.addEventListener("click", resetTimer);
   if (switchBtn) switchBtn.addEventListener("click", switchPhase);
-
   if (focusChip) focusChip.addEventListener("click", () => setPhase("focus"));
   if (breakChip) breakChip.addEventListener("click", () => setPhase("break"));
+  presetButtons.forEach(btn => btn.addEventListener("click", () => switchPreset(btn.getAttribute("data-preset"))));
 
-  presetButtons.forEach(btn => {
-    btn.addEventListener("click", () => switchPreset(btn.getAttribute("data-preset")));
-  });
-
-  // -------------------- INIT --------------------
+  // ---------- Init ----------
   startISTClock();
-  setActivePresetUI();
-  render();
-  applySpotifyTo("side");
-  applySpotifyTo("drawer");
-  updateSpotifyLockState();
+  resizeParticles();
+  animParticles();
+  window.addEventListener("resize", resizeParticles);
 
-  // If on mobile, keep sidebar spotify hidden; drawer gets the player
-  window.addEventListener("resize", () => {
-    // Re-apply so the drawer/sidebar stays consistent after resize
-    applySpotifyTo("side");
-    applySpotifyTo("drawer");
-    updateSpotifyLockState();
-    // Close drawer when switching to desktop
-    if (!isMobileLayout()) closeDrawer();
-  });
+  setActivePresetUI();
+  updateSpotifyLockState();
+  applySpotify("side");
+  applySpotify("drawer");
+  updateSnakeAvailability();
+  render();
 })();
