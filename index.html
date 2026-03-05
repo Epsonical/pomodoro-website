@@ -3,46 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pomodoro Timer</title>
+  <title>Study Timer</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="wrap">
-    <section class="card" aria-label="Pomodoro Timer">
-      <header class="header">
-        <h1 class="title">Pomodoro Timer</h1>
-        <p class="subtitle" id="statusText">Ready</p>
+    <section class="panel" aria-label="Study Timer">
+      <header class="top">
+        <div>
+          <h1 class="title">Study Timer</h1>
+          <p class="sub" id="statusText">Ready</p>
+        </div>
+        <div class="meta">
+          <span class="pill" id="presetPill">Normal</span>
+          <span class="pill" id="phasePill">Focus</span>
+        </div>
       </header>
 
-      <nav class="modes" aria-label="Timer mode">
-        <button class="chip is-active" type="button" data-mode="focus" aria-pressed="true">
-          Focus <span class="chip-sub">25:00</span>
+      <div class="presets" role="tablist" aria-label="Presets">
+        <button class="tab is-active" type="button" data-preset="normal" role="tab" aria-selected="true">
+          Normal <span class="tiny">25 / 5</span>
         </button>
-        <button class="chip" type="button" data-mode="short" aria-pressed="false">
-          Short Break <span class="chip-sub">05:00</span>
+        <button class="tab" type="button" data-preset="focus" role="tab" aria-selected="false">
+          Focus <span class="tiny">45 / 15</span>
         </button>
-        <button class="chip" type="button" data-mode="long" aria-pressed="false">
-          Long Break <span class="chip-sub">15:00</span>
+        <button class="tab" type="button" data-preset="revision" role="tab" aria-selected="false">
+          Revision <span class="tiny">10 / 3</span>
         </button>
-      </nav>
+      </div>
 
-      <div class="time" aria-live="polite" aria-atomic="true">
+      <div class="clock" aria-live="polite" aria-atomic="true">
         <span id="timeDisplay">25:00</span>
       </div>
 
-      <div class="progress" aria-label="Progress">
-        <div class="progress-bar" id="progressBar" style="width: 100%;"></div>
+      <div class="bar" aria-label="Progress">
+        <div class="barFill" id="progressBar" style="width: 100%;"></div>
       </div>
 
-      <div class="controls" aria-label="Controls">
-        <button class="btn primary" id="startBtn" type="button">Start</button>
-        <button class="btn" id="pauseBtn" type="button" disabled>Pause</button>
-        <button class="btn" id="resetBtn" type="button">Reset</button>
+      <div class="row">
+        <div class="info">
+          <div class="infoLine">
+            <span class="label">Focus</span>
+            <span id="focusLen">25:00</span>
+          </div>
+          <div class="infoLine">
+            <span class="label">Break</span>
+            <span id="breakLen">05:00</span>
+          </div>
+        </div>
+
+        <div class="controls" aria-label="Controls">
+          <button class="btn primary" id="startBtn" type="button">Start</button>
+          <button class="btn" id="pauseBtn" type="button" disabled>Pause</button>
+          <button class="btn" id="resetBtn" type="button">Reset</button>
+          <button class="btn ghost" id="switchBtn" type="button">Switch Focus/Break</button>
+        </div>
       </div>
 
-      <footer class="hint" aria-label="Hints">
-        <span>Tip: Space = Start/Pause</span>
+      <footer class="hint">
+        <span>Space = Start/Pause</span>
         <span>R = Reset</span>
+        <span>S = Switch</span>
       </footer>
     </section>
   </main>
