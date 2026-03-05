@@ -15,6 +15,74 @@
     <div class="istDate" id="istDate">---</div>
   </div>
 
+  <!-- Toast -->
+  <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Mobile music button -->
+  <button class="musicFab" id="musicFab" type="button" aria-label="Open music drawer">
+    🎵
+  </button>
+
+  <!-- Mobile Spotify Drawer -->
+  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
+  <section class="drawer" id="drawer" aria-label="Music drawer" aria-hidden="true">
+    <div class="drawerHandle" aria-hidden="true"></div>
+    <div class="drawerHeader">
+      <div class="drawerTitle">Spotify</div>
+      <button class="iconBtn" id="drawerCloseBtn" type="button" aria-label="Close music drawer">✕</button>
+    </div>
+
+    <!-- Spotify module (mobile) -->
+    <div class="spotifyCard spotifyCard--drawer" id="spotifyDrawerCard">
+      <div class="spotifyHeader">
+        <div>
+          <div class="spotifyTitleRow">
+            <div class="spotifyTitle">Spotify</div>
+            <span class="spotifyBadge" id="spNowDrawer">Lofi Beats</span>
+          </div>
+          <div class="spotifySub" id="spStatusDrawer">Unlocked</div>
+        </div>
+
+        <div class="spotifyActions">
+          <button class="iconBtn" id="spCollapseDrawer" type="button" aria-label="Collapse Spotify">▾</button>
+          <button class="iconBtn" id="spOpenDrawer" type="button" aria-label="Open in Spotify">↗</button>
+          <button class="iconBtn" id="spCopyDrawer" type="button" aria-label="Copy Spotify link">⧉</button>
+        </div>
+      </div>
+
+      <div class="spotifyBody" id="spBodyDrawer">
+        <div class="spotifySectionLabel">Vibes</div>
+        <div class="chipRow" id="spVibesDrawer" aria-label="Spotify vibes"></div>
+
+        <div class="spotifyRow">
+          <div class="spotifySectionLabel">Player</div>
+          <div class="seg">
+            <button class="segBtn" id="spMiniDrawer" type="button">Mini</button>
+            <button class="segBtn" id="spFullDrawer" type="button">Full</button>
+          </div>
+        </div>
+
+        <div class="spotifyFrameWrap">
+          <iframe
+            id="spIframeDrawer"
+            title="Spotify Player"
+            style="border-radius:14px"
+            width="100%"
+            height="152"
+            frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          ></iframe>
+        </div>
+
+        <div class="spotifyFoot" id="spFootDrawer">
+          <div class="spotifyHint">Tip: keep volume low while focusing.</div>
+          <div class="spotifyHint" id="spMetaDrawer">Mode: Mini • Status: Unlocked</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <main class="app" aria-label="Study Timer App">
     <!-- Sidebar -->
     <aside class="sidebar" aria-label="Presets">
@@ -64,20 +132,54 @@
         </div>
       </div>
 
-      <!-- Spotify embed -->
-      <div class="sectionTitle">Spotify</div>
-      <div class="spotifyBox" aria-label="Spotify Embed">
-        <!-- Replace the src with your playlist/track embed link -->
-        <iframe
-          style="border-radius:14px"
-          src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator"
-          width="100%"
-          height="152"
-          frameborder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          title="Spotify Player"
-        ></iframe>
+      <!-- Spotify module (desktop sidebar) -->
+      <div class="spotifyCard" id="spotifySidebarCard" aria-label="Spotify module">
+        <div class="spotifyHeader">
+          <div>
+            <div class="spotifyTitleRow">
+              <div class="spotifyTitle">Spotify</div>
+              <span class="spotifyBadge" id="spNowSide">Lofi Beats</span>
+            </div>
+            <div class="spotifySub" id="spStatusSide">Unlocked</div>
+          </div>
+
+          <div class="spotifyActions">
+            <button class="iconBtn" id="spCollapseSide" type="button" aria-label="Collapse Spotify">▾</button>
+            <button class="iconBtn" id="spOpenSide" type="button" aria-label="Open in Spotify">↗</button>
+            <button class="iconBtn" id="spCopySide" type="button" aria-label="Copy Spotify link">⧉</button>
+          </div>
+        </div>
+
+        <div class="spotifyBody" id="spBodySide">
+          <div class="spotifySectionLabel">Vibes</div>
+          <div class="chipRow" id="spVibesSide" aria-label="Spotify vibes"></div>
+
+          <div class="spotifyRow">
+            <div class="spotifySectionLabel">Player</div>
+            <div class="seg">
+              <button class="segBtn" id="spMiniSide" type="button">Mini</button>
+              <button class="segBtn" id="spFullSide" type="button">Full</button>
+            </div>
+          </div>
+
+          <div class="spotifyFrameWrap">
+            <iframe
+              id="spIframeSide"
+              title="Spotify Player"
+              style="border-radius:14px"
+              width="100%"
+              height="152"
+              frameborder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+            ></iframe>
+          </div>
+
+          <div class="spotifyFoot" id="spFootSide">
+            <div class="spotifyHint">Tip: keep volume low while focusing.</div>
+            <div class="spotifyHint" id="spMetaSide">Mode: Mini • Status: Unlocked</div>
+          </div>
+        </div>
       </div>
 
       <div class="keys">
@@ -86,6 +188,10 @@
           <div class="key"><span>Space</span><span>Start/Pause</span></div>
           <div class="key"><span>R</span><span>Reset</span></div>
           <div class="key"><span>S</span><span>Switch</span></div>
+          <div class="key"><span>M</span><span>Music collapse</span></div>
+          <div class="key"><span>V</span><span>Mini/Full</span></div>
+          <div class="key"><span>O</span><span>Open Spotify</span></div>
+          <div class="key"><span>C</span><span>Copy link</span></div>
         </div>
       </div>
     </aside>
