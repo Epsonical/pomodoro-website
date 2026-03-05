@@ -516,3 +516,20 @@ body{
   .musicFab{ display:grid; place-items:center; }
   .istClock{ top: 10px; right: 10px; }
 }
+
+/* Prevent background page movement */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* When modal is open, lock page scrolling completely */
+body.noScroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Important: stop touch gestures on the snake canvas (prevents swipe scrolling) */
+#snakeCanvas {
+  touch-action: none;  /* key fix for mobile swipe scrolling */
+}
