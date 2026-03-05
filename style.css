@@ -51,7 +51,7 @@ body{
 .app{
   min-height: 100%;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 340px 1fr;
   gap: 18px;
   padding: 18px;
 }
@@ -163,6 +163,148 @@ body{
 .miniValue{ color: var(--text); }
 .mono{ font-variant-numeric: tabular-nums; }
 
+/* Spotify module */
+.spotifyCard{
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.10);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.spotifyHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.spotifyTitleRow{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+
+.spotifyTitle{
+  font-weight: 780;
+  letter-spacing: 0.2px;
+}
+
+.spotifyBadge{
+  font-size: 11px;
+  color: var(--muted);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+}
+
+.spotifySub{
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted2);
+}
+
+.spotifyActions{
+  display:flex;
+  gap: 6px;
+}
+
+.iconBtn{
+  cursor:pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 6px 8px;
+  line-height: 1;
+  transition: background .15s ease, transform .08s ease;
+}
+.iconBtn:hover{ background: rgba(255,255,255,0.08); }
+.iconBtn:active{ transform: translateY(1px); }
+.iconBtn:disabled{ opacity: .55; cursor:not-allowed; }
+
+.spotifyBody{
+  display:block;
+}
+
+.spotifySectionLabel{
+  font-size: 11px;
+  color: var(--muted2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 10px 0 8px;
+}
+
+.chipRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+}
+
+.vibeChip{
+  cursor:pointer;
+  border-radius: 999px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-size: 12px;
+  transition: background .15s ease, transform .08s ease, border-color .15s ease;
+}
+.vibeChip:hover{ background: rgba(255,255,255,0.08); }
+.vibeChip:active{ transform: translateY(1px); }
+.vibeChip.is-active{
+  border-color: rgba(120,170,255,0.55);
+  background: rgba(120,170,255,0.14);
+}
+
+.spotifyRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.seg{
+  display:flex;
+  gap: 6px;
+}
+
+.segBtn{
+  cursor:pointer;
+  border-radius: 999px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-size: 12px;
+}
+.segBtn.is-active{
+  border-color: rgba(120,170,255,0.55);
+  background: rgba(120,170,255,0.14);
+}
+
+.spotifyFrameWrap{
+  margin-top: 10px;
+}
+
+.spotifyFoot{
+  margin-top: 10px;
+}
+
+.spotifyHint{
+  font-size: 12px;
+  color: var(--muted2);
+  margin-top: 3px;
+}
+
+.spotifyLocked{
+  opacity: 0.75;
+}
+
+/* Shortcuts block */
 .keys{
   margin-top: auto;
   padding: 12px;
@@ -204,7 +346,7 @@ body{
 }
 
 .card{
-  width: min(680px, 100%);
+  width: min(720px, 100%);
   padding: 18px;
 }
 
@@ -298,20 +440,12 @@ body{
   text-align:center;
 }
 
-/* Responsive */
-@media (max-width: 860px){
-  .app{
-    grid-template-columns: 1fr;
-  }
-  .main{ padding: 0; }
-}
-
 /* IST Clock (top-right) */
 .istClock{
   position: fixed;
   top: 14px;
   right: 14px;
-  z-index: 20;
+  z-index: 30;
   padding: 10px 12px;
   border-radius: 16px;
   background: rgba(255,255,255,0.06);
@@ -321,24 +455,134 @@ body{
   text-align: right;
   min-width: 170px;
 }
-
 .istTime{
   font-variant-numeric: tabular-nums;
   font-weight: 800;
   letter-spacing: 0.5px;
   font-size: 16px;
 }
-
 .istDate{
   margin-top: 2px;
   font-size: 12px;
   color: rgba(255,255,255,0.65);
 }
 
-/* Spotify box */
-.spotifyBox{
-  background: rgba(0,0,0,0.10);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 10px;
+/* Toast */
+.toast{
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 40;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.30);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 35px rgba(0,0,0,0.45);
+  color: var(--text);
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* Mobile music drawer */
+.musicFab{
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 35;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+  display: none; /* shown only on mobile */
+}
+.musicFab:hover{ background: rgba(255,255,255,0.12); }
+
+.drawerBackdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 34;
+  background: rgba(0,0,0,0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease;
+}
+
+.drawer{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 36;
+  transform: translateY(105%);
+  transition: transform .22s ease;
+  padding: 10px 12px 16px;
+}
+
+.drawer.open{
+  transform: translateY(0);
+}
+.drawerBackdrop.open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawerHandle{
+  width: 54px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+  margin: 6px auto 10px;
+}
+
+.drawerHeader{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 10px;
+}
+
+.drawerTitle{
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.spotifyCard--drawer{
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.50);
+  backdrop-filter: blur(14px);
+}
+
+/* Responsive */
+@media (max-width: 860px){
+  .app{
+    grid-template-columns: 1fr;
+  }
+  /* hide sidebar spotify on mobile; use drawer instead */
+  #spotifySidebarCard{
+    display: none;
+  }
+  .musicFab{
+    display: grid;
+    place-items: center;
+  }
+  .istClock{
+    top: 10px;
+    right: 10px;
+  }
 }
