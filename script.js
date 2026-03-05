@@ -503,6 +503,9 @@
 
   function closeSnake() {
     if (!snakeModal || !snakeBackdrop) return;
+
+    document.body.classList.remove("noScroll");
+    
     snakeModal.classList.remove("open");
     snakeBackdrop.classList.remove("open");
     snakeModal.setAttribute("aria-hidden", "true");
@@ -672,28 +675,36 @@
   });
 
   // input: swipe (mobile) on snake canvas
-  let sx = null, sy = null;
-  if (snakeCanvas) {
-    snakeCanvas.addEventListener("touchstart", (e) => {
-      const t = e.touches?.[0];
-      if (!t) return;
-      sx = t.clientX; sy = t.clientY;
-    }, { passive: true });
+let sx = null, sy = null;
 
-    snakeCanvas.addEventListener("touchend", (e) => {
-      if (sx === null || sy === null) return;
-      const t = e.changedTouches?.[0];
-      if (!t) return;
-      const dx = t.clientX - sx;
-      const dy = t.clientY - sy;
-      sx = sy = null;
+if (snakeCanvas) {
+  snakeCanvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const t = e.touches?.[0];
+    if (!t) return;
+    sx = t.clientX; sy = t.clientY;
+  }, { passive: false });
 
-      if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
+  snakeCanvas.addEventListener("touchmove", (e) => {
+    e.preventDefault(); // ✅ prevents page pan while swiping
+  }, { passive: false });
 
-      if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
-      else setDir(0, dy > 0 ? 1 : -1);
-    }, { passive: true });
-  }
+  snakeCanvas.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    if (sx === null || sy === null) return;
+    const t = e.changedTouches?.[0];
+    if (!t) return;
+
+    const dx = t.clientX - sx;
+    const dy = t.clientY - sy;
+    sx = sy = null;
+
+    if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+    else setDir(0, dy > 0 ? 1 : -1);
+  }, { passive: false });
+}
 
   // ---------- Mobile drawer ----------
   function openDrawer() {
