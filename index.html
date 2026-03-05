@@ -7,49 +7,84 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="wrap">
-    <section class="panel" aria-label="Study Timer">
-      <header class="top">
+  <div class="bg"></div>
+
+  <main class="app" aria-label="Study Timer App">
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Presets">
+      <div class="brand">
+        <div class="logo">⏳</div>
         <div>
-          <h1 class="title">Study Timer</h1>
-          <p class="sub" id="statusText">Ready</p>
+          <div class="brandTitle">Study Timer</div>
+          <div class="brandSub" id="statusText">Ready</div>
         </div>
-        <div class="meta">
-          <span class="pill" id="presetPill">Normal</span>
-          <span class="pill" id="phasePill">Focus</span>
+      </div>
+
+      <div class="sectionTitle">Presets</div>
+
+      <div class="presetList" role="tablist" aria-label="Timer presets">
+        <button class="preset is-active" type="button" data-preset="normal" role="tab" aria-selected="true">
+          <div class="presetName">Normal</div>
+          <div class="presetMeta">Focus 25 • Break 5</div>
+        </button>
+
+        <button class="preset" type="button" data-preset="focus" role="tab" aria-selected="false">
+          <div class="presetName">Focus</div>
+          <div class="presetMeta">Focus 45 • Break 15</div>
+        </button>
+
+        <button class="preset" type="button" data-preset="revision" role="tab" aria-selected="false">
+          <div class="presetName">Revision</div>
+          <div class="presetMeta">Focus 10 • Break 3</div>
+        </button>
+      </div>
+
+      <div class="mini">
+        <div class="miniRow">
+          <span class="miniLabel">Current preset</span>
+          <span class="miniValue" id="presetPill">Normal</span>
         </div>
-      </header>
-
-      <div class="presets" role="tablist" aria-label="Presets">
-        <button class="tab is-active" type="button" data-preset="normal" role="tab" aria-selected="true">
-          Normal <span class="tiny">25 / 5</span>
-        </button>
-        <button class="tab" type="button" data-preset="focus" role="tab" aria-selected="false">
-          Focus <span class="tiny">45 / 15</span>
-        </button>
-        <button class="tab" type="button" data-preset="revision" role="tab" aria-selected="false">
-          Revision <span class="tiny">10 / 3</span>
-        </button>
+        <div class="miniRow">
+          <span class="miniLabel">Phase</span>
+          <span class="miniValue" id="phasePill">Focus</span>
+        </div>
+        <div class="miniRow">
+          <span class="miniLabel">Focus length</span>
+          <span class="miniValue mono" id="focusLen">25:00</span>
+        </div>
+        <div class="miniRow">
+          <span class="miniLabel">Break length</span>
+          <span class="miniValue mono" id="breakLen">05:00</span>
+        </div>
       </div>
 
-      <div class="clock" aria-live="polite" aria-atomic="true">
-        <span id="timeDisplay">25:00</span>
+      <div class="keys">
+        <div class="keyTitle">Shortcuts</div>
+        <div class="keyGrid">
+          <div class="key"><span>Space</span><span>Start/Pause</span></div>
+          <div class="key"><span>R</span><span>Reset</span></div>
+          <div class="key"><span>S</span><span>Switch</span></div>
+        </div>
       </div>
+    </aside>
 
-      <div class="bar" aria-label="Progress">
-        <div class="barFill" id="progressBar" style="width: 100%;"></div>
-      </div>
-
-      <div class="row">
-        <div class="info">
-          <div class="infoLine">
-            <span class="label">Focus</span>
-            <span id="focusLen">25:00</span>
+    <!-- Main -->
+    <section class="main" aria-label="Timer">
+      <div class="card">
+        <header class="cardTop">
+          <div class="cardTitle">Timer</div>
+          <div class="chips">
+            <button class="chip is-active" id="focusChip" type="button">Focus</button>
+            <button class="chip" id="breakChip" type="button">Break</button>
           </div>
-          <div class="infoLine">
-            <span class="label">Break</span>
-            <span id="breakLen">05:00</span>
-          </div>
+        </header>
+
+        <div class="time" aria-live="polite" aria-atomic="true">
+          <span id="timeDisplay">25:00</span>
+        </div>
+
+        <div class="progress" aria-label="Progress">
+          <div class="progressFill" id="progressBar" style="width:100%"></div>
         </div>
 
         <div class="controls" aria-label="Controls">
@@ -58,13 +93,11 @@
           <button class="btn" id="resetBtn" type="button">Reset</button>
           <button class="btn ghost" id="switchBtn" type="button">Switch Focus/Break</button>
         </div>
-      </div>
 
-      <footer class="hint">
-        <span>Space = Start/Pause</span>
-        <span>R = Reset</span>
-        <span>S = Switch</span>
-      </footer>
+        <p class="note">
+          Preset click = updates timer. Timer end auto-switches phase.
+        </p>
+      </div>
     </section>
   </main>
 
