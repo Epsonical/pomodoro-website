@@ -9,6 +9,12 @@
 <body>
   <div class="bg"></div>
 
+  <!-- IST clock (top-right corner) -->
+  <div class="istClock" aria-label="IST Clock">
+    <div class="istTime" id="istTime">--:--:--</div>
+    <div class="istDate" id="istDate">---</div>
+  </div>
+
   <main class="app" aria-label="Study Timer App">
     <!-- Sidebar -->
     <aside class="sidebar" aria-label="Presets">
@@ -58,6 +64,22 @@
         </div>
       </div>
 
+      <!-- Spotify embed -->
+      <div class="sectionTitle">Spotify</div>
+      <div class="spotifyBox" aria-label="Spotify Embed">
+        <!-- Replace the src with your playlist/track embed link -->
+        <iframe
+          style="border-radius:14px"
+          src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator"
+          width="100%"
+          height="152"
+          frameborder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          title="Spotify Player"
+        ></iframe>
+      </div>
+
       <div class="keys">
         <div class="keyTitle">Shortcuts</div>
         <div class="keyGrid">
@@ -94,9 +116,7 @@
           <button class="btn ghost" id="switchBtn" type="button">Switch Focus/Break</button>
         </div>
 
-        <p class="note">
-          Preset click = updates timer. Timer end auto-switches phase.
-        </p>
+        <p class="note">Preset click updates timer. Timer end auto-switches phase.</p>
       </div>
     </section>
   </main>
