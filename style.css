@@ -1,193 +1,307 @@
-(() => {
-  // Presets in seconds
-  const PRESETS = {
-    normal:   { name: "Normal",   focus: 25 * 60, brk:  5 * 60 },
-    focus:    { name: "Focus",    focus: 45 * 60, brk: 15 * 60 },
-    revision: { name: "Revision", focus: 10 * 60, brk:  3 * 60 },
-  };
+:root{
+  --bg1:#050816;
+  --bg2:#030412;
 
-  // Elements
-  const timeDisplay = document.getElementById("timeDisplay");
-  const statusText  = document.getElementById("statusText");
-  const progressBar = document.getElementById("progressBar");
+  --glass: rgba(255,255,255,0.07);
+  --glass2: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.12);
 
-  const presetPill = document.getElementById("presetPill");
-  const phasePill  = document.getElementById("phasePill");
-  const focusLen   = document.getElementById("focusLen");
-  const breakLen   = document.getElementById("breakLen");
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.72);
+  --muted2: rgba(255,255,255,0.55);
 
-  const startBtn  = document.getElementById("startBtn");
-  const pauseBtn  = document.getElementById("pauseBtn");
-  const resetBtn  = document.getElementById("resetBtn");
-  const switchBtn = document.getElementById("switchBtn");
+  --accent: rgba(120,170,255,0.90);
+  --accent2: rgba(120,255,220,0.65);
 
-  const presetButtons = Array.from(document.querySelectorAll(".tab[data-preset]"));
+  --shadow: 0 18px 50px rgba(0,0,0,0.50);
+  --radius: 18px;
+}
 
-  // State
-  let presetKey = "normal";
-  let phase = "focus"; // "focus" | "break"
-  let remaining = PRESETS[presetKey].focus;
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  overflow-x: hidden;
+}
 
-  let intervalId = null;
-  let isRunning = false;
+/* Animated background */
+.bg{
+  position: fixed;
+  inset: -40%;
+  z-index: -2;
+  background:
+    radial-gradient(900px 700px at 20% 20%, rgba(120,170,255,0.22), transparent 60%),
+    radial-gradient(800px 650px at 80% 35%, rgba(120,255,220,0.12), transparent 60%),
+    radial-gradient(900px 700px at 60% 90%, rgba(255,120,210,0.10), transparent 55%),
+    linear-gradient(135deg, rgba(5,8,22,1), rgba(2,3,10,1));
+  filter: blur(18px);
+  animation: drift 14s ease-in-out infinite alternate;
+}
 
-  // Helpers
-  const pad2 = (n) => String(n).padStart(2, "0");
-  const fmt = (seconds) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${pad2(m)}:${pad2(s)}`;
-  };
+@keyframes drift{
+  0%   { transform: translate3d(-2%, -1%, 0) scale(1.02); }
+  50%  { transform: translate3d( 2%,  2%, 0) scale(1.04); }
+  100% { transform: translate3d(-1%,  3%, 0) scale(1.03); }
+}
 
-  function currentDuration() {
-    const p = PRESETS[presetKey];
-    return phase === "focus" ? p.focus : p.brk;
+/* Layout */
+.app{
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+  padding: 18px;
+}
+
+.sidebar, .card{
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.sidebar{
+  padding: 16px;
+  display:flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.brand{
+  display:flex;
+  gap: 12px;
+  align-items:center;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--glass2);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.logo{
+  width: 40px;
+  height: 40px;
+  display:grid;
+  place-items:center;
+  border-radius: 12px;
+  background: rgba(120,170,255,0.14);
+  border: 1px solid rgba(120,170,255,0.22);
+}
+
+.brandTitle{
+  font-weight: 780;
+  letter-spacing: 0.2px;
+}
+.brandSub{
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.sectionTitle{
+  font-size: 12px;
+  color: var(--muted2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.presetList{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preset{
+  text-align:left;
+  cursor: pointer;
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text);
+  transition: transform .08s ease, background .15s ease, border-color .15s ease;
+}
+.preset:hover{ background: rgba(255,255,255,0.06); }
+.preset:active{ transform: translateY(1px); }
+
+.preset.is-active{
+  border-color: rgba(120,170,255,0.55);
+  background: rgba(120,170,255,0.12);
+  outline: 2px solid rgba(120,170,255,0.10);
+}
+
+.presetName{
+  font-weight: 740;
+  margin-bottom: 2px;
+}
+.presetMeta{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.mini{
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.10);
+  border: 1px solid rgba(255,255,255,0.08);
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.miniRow{
+  display:flex;
+  justify-content:space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+.miniLabel{ color: var(--muted2); }
+.miniValue{ color: var(--text); }
+.mono{ font-variant-numeric: tabular-nums; }
+
+.keys{
+  margin-top: auto;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.10);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.keyTitle{
+  font-size: 12px;
+  color: var(--muted2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.keyGrid{
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.key{
+  display:flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--muted);
+}
+.key span:first-child{
+  color: var(--text);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+}
+
+/* Main */
+.main{
+  display:grid;
+  place-items:center;
+  padding: 6px;
+}
+
+.card{
+  width: min(680px, 100%);
+  padding: 18px;
+}
+
+.cardTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.cardTitle{
+  font-weight: 780;
+  letter-spacing: 0.2px;
+}
+
+.chips{
+  display:flex;
+  gap: 8px;
+}
+.chip{
+  cursor:pointer;
+  border-radius: 999px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.chip.is-active{
+  border-color: rgba(120,170,255,0.55);
+  background: rgba(120,170,255,0.14);
+}
+
+.time{
+  text-align:center;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(64px, 8vw, 110px);
+  font-weight: 820;
+  letter-spacing: 1px;
+  margin: 10px 0 14px;
+}
+
+.progress{
+  height: 10px;
+  border-radius: 999px;
+  overflow:hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  margin-bottom: 16px;
+}
+.progressFill{
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width .25s ease;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.btn{
+  border-radius: 14px;
+  padding: 12px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  cursor:pointer;
+  transition: transform .08s ease, background .15s ease;
+}
+.btn:hover{ background: rgba(255,255,255,0.08); }
+.btn:active{ transform: translateY(1px); }
+.btn:disabled{ opacity: 0.55; cursor:not-allowed; }
+
+.btn.primary{
+  border-color: rgba(120,170,255,0.45);
+  background: rgba(120,170,255,0.14);
+}
+
+.btn.ghost{
+  grid-column: 1 / -1;
+  background: transparent;
+}
+
+.note{
+  margin: 14px 0 0;
+  color: var(--muted2);
+  font-size: 13px;
+  text-align:center;
+}
+
+/* Responsive */
+@media (max-width: 860px){
+  .app{
+    grid-template-columns: 1fr;
   }
-
-  function setStatus(text) {
-    statusText.textContent = text;
-  }
-
-  function setButtons() {
-    startBtn.disabled = isRunning;
-    pauseBtn.disabled = !isRunning;
-
-    const dur = currentDuration();
-    const started = remaining < dur;
-    startBtn.textContent = isRunning ? "Running…" : (started ? "Resume" : "Start");
-  }
-
-  function setActivePresetUI() {
-    presetButtons.forEach(btn => {
-      const key = btn.getAttribute("data-preset");
-      const active = key === presetKey;
-      btn.classList.toggle("is-active", active);
-      btn.setAttribute("aria-selected", active ? "true" : "false");
-    });
-  }
-
-  function renderMeta() {
-    const p = PRESETS[presetKey];
-    presetPill.textContent = p.name;
-    phasePill.textContent = phase === "focus" ? "Focus" : "Break";
-    focusLen.textContent = fmt(p.focus);
-    breakLen.textContent = fmt(p.brk);
-  }
-
-  function render() {
-    timeDisplay.textContent = fmt(remaining);
-
-    const dur = currentDuration();
-    const ratio = Math.max(0, Math.min(1, remaining / dur));
-    progressBar.style.width = `${ratio * 100}%`;
-
-    renderMeta();
-    setButtons();
-  }
-
-  function stopTimer() {
-    if (intervalId) clearInterval(intervalId);
-    intervalId = null;
-    isRunning = false;
-    setButtons();
-  }
-
-  function autoSwitchPhase() {
-    // switch focus <-> break after timer ends
-    phase = (phase === "focus") ? "break" : "focus";
-    remaining = currentDuration();
-  }
-
-  function tick() {
-    remaining -= 1;
-
-    if (remaining <= 0) {
-      remaining = 0;
-      stopTimer();
-      render();
-
-      // Auto switch phase after showing 0 briefly
-      setStatus("Time’s up! Switching…");
-      // Small delay feels nicer
-      setTimeout(() => {
-        autoSwitchPhase();
-        setStatus("Ready");
-        render();
-      }, 600);
-
-      return;
-    }
-
-    render();
-  }
-
-  function startTimer() {
-    if (isRunning) return;
-    isRunning = true;
-    setButtons();
-    setStatus(`${phase === "focus" ? "Focus" : "Break"} running…`);
-    intervalId = setInterval(tick, 1000);
-  }
-
-  function pauseTimer() {
-    if (!isRunning) return;
-    stopTimer();
-    setStatus("Paused");
-    render();
-  }
-
-  function resetTimer() {
-    stopTimer();
-    remaining = currentDuration();
-    setStatus("Ready");
-    render();
-  }
-
-  function switchPhase() {
-    stopTimer();
-    phase = (phase === "focus") ? "break" : "focus";
-    remaining = currentDuration();
-    setStatus("Ready");
-    render();
-  }
-
-  function switchPreset(newKey) {
-    if (!PRESETS[newKey]) return;
-    stopTimer();
-    presetKey = newKey;
-    phase = "focus";
-    remaining = currentDuration();
-    setActivePresetUI();
-    setStatus("Ready");
-    render();
-  }
-
-  // Events
-  startBtn.addEventListener("click", startTimer);
-  pauseBtn.addEventListener("click", pauseTimer);
-  resetBtn.addEventListener("click", resetTimer);
-  switchBtn.addEventListener("click", switchPhase);
-
-  presetButtons.forEach(btn => {
-    btn.addEventListener("click", () => switchPreset(btn.getAttribute("data-preset")));
-  });
-
-  // Keyboard shortcuts
-  document.addEventListener("keydown", (e) => {
-    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-
-    if (e.code === "Space") {
-      e.preventDefault();
-      isRunning ? pauseTimer() : startTimer();
-    } else if (e.key.toLowerCase() === "r") {
-      resetTimer();
-    } else if (e.key.toLowerCase() === "s") {
-      switchPhase();
-    }
-  });
-
-  // Init
-  setActivePresetUI();
-  renderMeta();
-  render();
-})();
+  .main{ padding: 0; }
+}
