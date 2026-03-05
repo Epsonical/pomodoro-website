@@ -227,25 +227,26 @@
   // -------------------- SPOTIFY MODULE --------------------
   // Vibes (you can replace these URLs later)
   // embedUrl must be spotify.com/embed/... and openUrl is spotify.com/...
-  const SPOTIFY_VIBES = [
-    {
-      key: "lofi",
-      label: "Lofi Beats",
-      embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M",
-      openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
-    },
-    {
-      key: "deep",
-      label: "Deep Focus",
-      embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ",
-      openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ",
-    },
-    {
-      key: "rain",
-      label: "Rain",
-      embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8",
-      openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DX4PP3DA4J0N8",
-    },
+ const SPOTIFY_VIBES = [
+  {
+    key: "lofi",
+    label: "Lofi Beats",
+    embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M",
+    openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
+  },
+  {
+    key: "deep",
+    label: "Deep Focus",
+    embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ",
+    openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ",
+  },
+  {
+    key: "rain",
+    label: "Rain",
+    embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8",
+    openUrl:  "https://open.spotify.com/playlist/37i9dQZF1DX4PP3DA4J0N8",
+  },
+];
 
   const LS = {
     vibe: "spotify_selected_vibe",
