@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pomodoro Timer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <section class="card" aria-label="Pomodoro Timer">
+      <header class="header">
+        <h1 class="title">Pomodoro Timer</h1>
+        <p class="subtitle" id="statusText">Ready</p>
+      </header>
+
+      <nav class="modes" aria-label="Timer mode">
+        <button class="chip is-active" type="button" data-mode="focus" aria-pressed="true">
+          Focus <span class="chip-sub">25:00</span>
+        </button>
+        <button class="chip" type="button" data-mode="short" aria-pressed="false">
+          Short Break <span class="chip-sub">05:00</span>
+        </button>
+        <button class="chip" type="button" data-mode="long" aria-pressed="false">
+          Long Break <span class="chip-sub">15:00</span>
+        </button>
+      </nav>
+
+      <div class="time" aria-live="polite" aria-atomic="true">
+        <span id="timeDisplay">25:00</span>
+      </div>
+
+      <div class="progress" aria-label="Progress">
+        <div class="progress-bar" id="progressBar" style="width: 100%;"></div>
+      </div>
+
+      <div class="controls" aria-label="Controls">
+        <button class="btn primary" id="startBtn" type="button">Start</button>
+        <button class="btn" id="pauseBtn" type="button" disabled>Pause</button>
+        <button class="btn" id="resetBtn" type="button">Reset</button>
+      </div>
+
+      <footer class="hint" aria-label="Hints">
+        <span>Tip: Space = Start/Pause</span>
+        <span>R = Reset</span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
